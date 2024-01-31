@@ -128,7 +128,7 @@ def clear_logcat():
 
 def ping(ip):
     try:
-        resultado = subprocess.check_output(['ping', '-c', '1', ip])
+        subprocess.check_output(['ping', '-c', '1', ip])
         print(f'{ip} is active.')
         return True
     except subprocess.CalledProcessError:
@@ -139,7 +139,6 @@ def debug_on_wifi():
     """
     Debugging over WiFi.
     """
-    restart_adb_server()
     subprocess.run(["adb", "tcpip", f"{PORT}"])
 
     for IP in PHONE_IPS:
@@ -168,7 +167,8 @@ def livestream():
     Handles the livestream process.
     """
     if STREAM_USING == "WIFI":
-        time.sleep(3)
+        restart_adb_server()
+        time.sleep(5)
 
     for proc in psutil.process_iter():
         try:
@@ -228,7 +228,7 @@ def get_app_name():
     return "UnknownApp"
 
 
-def start(main_file):
+def start(main_file="main.py"):
     """
     Entry point for the script. Prompts the user to choose an option.
     """
