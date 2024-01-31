@@ -1,5 +1,6 @@
 import logging
 import os
+import inspect
 import subprocess
 import time
 from multiprocessing import Process
@@ -14,7 +15,6 @@ from .utils import (
     ALWAYS_ON_TOP,
     PHONE_IPS,
     PORT,
-    SERVICE_NAMES,
     SHOW_TOUCHES,
     STAY_AWAKE,
     STREAM_USING,
@@ -30,6 +30,9 @@ if platform in ["linux", "macosx"]:
 
 yellow = Fore.YELLOW
 init(autoreset=True)
+
+ForceApplicationExit = (KeyboardInterrupt,
+                        UnboundLocalError)
 
 
 logging.basicConfig(
@@ -94,12 +97,15 @@ def debug():
     """
     Debugging based on the streaming method.
     """
-    if STREAM_USING == "USB":
-        restart_adb_server()
-        clear_logcat()
-        run_logcat()
-    elif STREAM_USING == "WIFI":
-        debug_on_wifi()
+    try:
+        if STREAM_USING == "USB":
+            restart_adb_server()
+            clear_logcat()
+            run_logcat()
+        elif STREAM_USING == "WIFI":
+            debug_on_wifi()
+    except ForceApplicationExit:
+        logging.info("scrcpy closing by user.")
 
 
 def restart_adb_server():
@@ -120,29 +126,34 @@ def clear_logcat():
     subprocess.run(["adb", "logcat", "-c"])
 
 
+def ping(ip):
+    try:
+        resultado = subprocess.check_output(['ping', '-c', '1', ip])
+        print(f'{ip} is active.')
+        return True
+    except subprocess.CalledProcessError:
+        print(f'{ip} is not active.')
+
+
 def debug_on_wifi():
     """
     Debugging over WiFi.
     """
+    restart_adb_server()
     subprocess.run(["adb", "tcpip", f"{PORT}"])
 
     for IP in PHONE_IPS:
         # start each logcat on a thread
-        t = Thread(target=run_logcat, args=(IP,))
-        t.start()
+        if ping(IP):
+            t = Thread(target=run_logcat, args=(IP,))
+            t.start()
 
 
 def run_logcat(IP=None, *args):
     """
     Runs logcat for debugging.
     """
-    watch = "'I python"
-    for service in SERVICE_NAMES:
-        watch += f"\|{service}"
-    else:
-        watch += "'"
-
-    logcat_command = f"adb logcat | grep {watch}"
+    logcat_command = "adb logcat | grep 'I python'"
 
     if IP:
         subprocess.run(["adb", "connect", f"{IP}"])
@@ -166,8 +177,10 @@ def livestream():
                 return
         except psutil.NoSuchProcess:
             logging.error("Error while trying to find scrcpy process")
-
-    start_scrcpy()
+    try:
+        start_scrcpy()
+    except ForceApplicationExit:
+        logging.info("scrcpy closing by user.")
 
 
 def start_scrcpy():
@@ -215,14 +228,26 @@ def get_app_name():
     return "UnknownApp"
 
 
-def start():
+def start(main_file):
     """
     Entry point for the script. Prompts the user to choose an option.
     """
     print(f"{yellow} Choose an option:")
     app_name = get_app_name()
-    option = input("1 - Compile, debug and livestream\n2 - Debug and livestream\n")
-    start_compilation(option, app_name)
+    try:
+        option = input("1 - Compile, debug and livestream\n2 - Debug and livestream\n")
+        start_compilation(option, app_name)
+        path_of_current_file = inspect.currentframe().f_back
+        path_of_send_app = os.path.join(
+            os.path.dirname(
+                os.path.abspath(path_of_current_file.f_code.co_filename)
+            ),
+            main_file,
+        )
+        subprocess.run(f"python {path_of_send_app} no-window", shell=True)
+    except ForceApplicationExit:
+        logging.info("Exiting application...")
+        return
 
 
 if __name__ == "__main__":

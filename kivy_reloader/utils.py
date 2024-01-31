@@ -155,8 +155,6 @@ if platform not in ["android", "ios"]:
             "WINDOW_X",
             "WINDOW_Y",
             "WINDOW_WIDTH",
-            "SERVICE_FILES",
-            "SERVICE_NAMES",
         ]
         for constant in constants_to_import:
             try:
@@ -215,8 +213,6 @@ if platform not in ["android", "ios"]:
             HOT_RELOAD_ON_PHONE,
             PHONE_IPS,
             PORT,
-            SERVICE_FILES,
-            SERVICE_NAMES,
             SHOW_TOUCHES,
             STAY_AWAKE,
             STREAM_USING,
@@ -319,8 +315,6 @@ else:
             "WATCHED_FOLDERS_RECURSIVELY",
             "WATCHED_KV_FOLDERS",
             "WATCHED_KV_FOLDERS_RECURSIVELY",
-            "SERVICE_FILES",
-            "SERVICE_NAMES",
         ]
 
         for constant in constants_to_import:
@@ -330,8 +324,6 @@ else:
                 exec(f"from .constants import {constant}")
     else:
         from .constants import (
-            SERVICE_FILES,
-            SERVICE_NAMES,
             WATCHED_FILES,
             WATCHED_FOLDERS,
             WATCHED_FOLDERS_RECURSIVELY,

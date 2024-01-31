@@ -1,6 +1,6 @@
 # The IP address of your phone; You can hot-reload how many phones you want.
 # use "127.0.0.1" if you are using an emulator.
-PHONE_IPS = ["192.168.1.68"]
+PHONE_IPS = ["192.168.0.105", "192.168.1.148"]
 
 # If True, it's going to send the app to smartphone every time you press Ctrl+S
 HOT_RELOAD_ON_PHONE = True
@@ -8,7 +8,7 @@ HOT_RELOAD_ON_PHONE = True
 # You can stream using "USB" or "WIFI"
 # If your USB cable is connected, use "USB", otherwise use "WIFI"
 # To use WIFI, you need connect your phone to the same network as your computer
-STREAM_USING = "USB"
+STREAM_USING = "WIFI"
 
 # The port where the server will be listening
 # It can be any port
@@ -16,6 +16,9 @@ PORT = 5555
 
 # Add the python files you want to watch here, i.e., if they change, the app will be reloaded
 WATCHED_FILES = ["main.py"]
+
+# Main program file, which will be executed first.
+MAIN_FILE = "main.py"
 
 # Add the folders you want to watch recursively here, i.e., if **ANY FILE** inside them changes, the app will be reloaded
 WATCHED_FOLDERS_RECURSIVELY = ["screens"]

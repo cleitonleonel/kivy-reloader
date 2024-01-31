@@ -6,6 +6,10 @@
 .mypy_cache
 .python-version
 .venv
+.idea
+.vscode
+poetry.lock
+pyproject.toml
 *.pyc
 app_copy.zip
 __pycache__
